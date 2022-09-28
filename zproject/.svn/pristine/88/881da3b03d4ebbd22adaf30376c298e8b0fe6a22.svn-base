@@ -1,0 +1,12 @@
+package com.example.demo.dto;
+
+import java.util.*;
+
+import lombok.*;
+
+@Data
+public class CategoryDto {
+	private Integer no;
+	private String name;
+	private List<CategoryDto> categoryList;
+}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<title>Insert title here</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="/css/main.css">
+<script>
+	// 서버에서 수신할 사용자 정보
+	let member = undefined;
+	
+	const printPage=()=>{
+		$("#show_profile").attr("src", member.profile);
+		$("#irum").text(member.irum);
+		$("#username").text(member.username);
+		$("#birthday").text(member.birthday);
+		$("#joinday").text(member.joinday);
+		$("#level").text(member.levels);
+		$("#days").text(member.days);
+		
+		// spring@naver.com이라면 @로 잘라서 spring과 naver.com으로 분리 출력
+		const emails = member.email.split("@");
+		$("#email2").prop("disabled", true);
+		$("#email1").val(emails[0]);
+		$("#email2").val(emails[1]);
+		
+		// #selectEmail을 읽어온다. { 직접 입력, naver, daum, gmail}
+		const $options = $("#selectEmail option");
+		let isFind = false;
+		
+		// 사용자 이메일을 #selectEmail에서 찾으면 그 option을 활성화
+		$.each($options, function(idx, option) {				
+			if($(option).text()==emails[1]) {
+				$(option).prop("selected", true);
+				isFind = true;
+			}
+		});
+		
+		// 못 찾으면 기본값인 직접 입력을 활성화
+		if(isFind==false) {
+			$("#email2").prop("disabled", false);
+			$($options[0]).prop("selected", true)
+		}		
+	}
+	
+	function changeEmail() {
+		const $choice = $("#selectEmail").val();
+		if($choice=="직접 입력")
+			$("#email2").prop("disabled", false).val("").attr("placeholder", $choice).focus();
+		else
+			$("#email2").val($choice).prop("disabled", true);
+	}
+	
+	// 프사를 출력하는 함수
+	function loadprofile() {
+		const file = $("#profile")[0].files[0];
+		const maxSize = 1024*1024;			
+		if(file.size>maxSize) {
+			Swal.fire('프로필 크기 오류', '프로필 사진은 1MB를 넘을 수 없습니다','error');
+			$("#profile").val("");
+			$("#show_profile").removeAttr("src");
+			return false;
+		}
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = function() {
+			$("#show_profile").attr("src", reader.result);
+		}
+		return true;
+	}
+	
+	
+	$(document).ready(function() {
+		$.ajax("/member").done(result=>{
+			member = result.result;
+			printPage();
+		});
+		
+		$("#profile").on("change", loadprofile);
+		$("#pwdArea").css("display", "none");
+		
+		$("#changePassword").on("click", ()=>{
+			location.href = "/member/change_password"
+		});
+		
+		$("#selectEmail").on("change", changeEmail);
+		
+		// 전체 변경...이라지만 이메일과 프사만 변경 가능
+		$("#update").on("click", ()=>{
+			let formData = null;
+			if($("#profile")[0].files[0]!=undefined) {
+				formData = new FormData();
+				formData.append("profile", $("#profile")[0].files[0]);
+			}
+			
+			const $inputEmail = $("#email1").val() + "@" + $("#email2").val();
+			if(member.email!=$inputEmail) {
+				if(formData==null)
+					formData = new FormData();
+				formData.append("email", $inputEmail);
+			}
+			
+			if(formData==null)
+				return;
+			
+			$.ajax({
+				url: "/member",
+				method: "post",
+				data: formData,
+				processData:  false,
+				contentType: false
+			}).done(()=>Swal.fire("변경","회원 정보를 변경했습니다", "success"))
+				.fail(()=>Swal.fire("변경 실패", "회원 정보를 변경하지 못했습니다", "error"));
+			
+		});
+		
+		$("#resign").on("click", ()=>{
+			$.ajax({
+				url: "/members/member",
+				method : "delete"
+			}).fail(()=>Swal.fire("삭제 실패", "회원 정보를 삭제하지 못했습니다", "error"));
+		});
+	})
+</script>
+</head>
+<body>
+<div th:text="${member}"></div>
+<div id="page">
+	<header id="header" th:replace="/fragments/header">
+	</header>
+	<nav id="nav" th:replace="/fragments/nav">
+	</nav>
+	<div id="main">
+		<aside id="aside" th:replace="/fragments/aside">
+		</aside>
+		<section id="section">
+			<table class="table table-hover">
+				<colgroup>
+					<col width="30%">
+					<col width="70%">
+				</colgroup>
+				<tr>
+					<td colspan="2">
+						<img id="show_profile" height="200px;">
+						<input type="file" name="profile" id="profile">
+					</td>
+				</tr>
+				<tr>
+					<td class="first">이름</td>
+					<td id="irum"></td>
+				</tr>
+				<tr>
+					<td class="first">아이디</td>
+					<td id="username"></td>
+				</tr>
+				<tr>
+					<td class="first">생년월일</td>
+					<td id="birthday"></td>
+				</tr>
+				<tr>
+					<td class="first">가입일</td>
+					<td colspan="2" id="joinday"></td>
+				</tr>
+				<tr><td class="first">비밀번호</td>
+					<td colspan="2">
+						<button type="button" class="btn btn-info" id="changePassword">비밀번호 수정</button>
+					</td>
+				</tr>
+				<tr>
+					<td class="first">이메일</td>
+					<td>
+						<input type="text" name="email1" id="email1">
+							&nbsp;@&nbsp;
+						<input type="text" name="email2" id="email2">&nbsp;&nbsp;
+						<select id="selectEmail">
+							<option selected="selected">직접 입력</option>
+							<option>naver.com</option>
+							<option>daum.net</option>
+							<option>gmail.com</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="first">회원정보</td>
+					<td>
+						가입기간 : <span id="days"></span><br>
+						레벨 : <span id="level"></span>
+					</td></tr>
+			</table>
+			<button type="button" class="btn btn-success" id="update">변경하기</button>&nbsp;&nbsp;&nbsp;&nbsp;
+			<button type="button" class="btn btn-success" id="resign">탈퇴하기</button>
+		</section>
+	</div>
+	<footer id="footer" th:replace="/fragments/footer">
+	</footer>
+</div>
+</body>
+</html>

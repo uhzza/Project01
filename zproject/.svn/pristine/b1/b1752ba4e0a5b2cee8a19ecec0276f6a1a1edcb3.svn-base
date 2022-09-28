@@ -1,0 +1,29 @@
+package com.example.demo.controller.advice;
+
+import java.sql.*;
+
+import javax.validation.*;
+
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.*;
+
+import com.example.demo.dto.*;
+import com.example.demo.exception.*;
+
+@RestControllerAdvice
+public class BoardControllerAdvice {
+	@ExceptionHandler(BoardNotFoundException.class)
+	public ResponseEntity<RestResponse> BNFExption() {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestResponse("Fail", "게시물을 찾을 수 없습니다", "/board/list"));
+	}
+	
+	@ExceptionHandler(JobFailException.class)
+	public ResponseEntity<RestResponse> JFExption(JobFailException e) {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestResponse("FAIL", e.getMessage(), null));
+	}
+	
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<RestResponse> constraintViolationException() {
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestResponse("FAIL", "데이터가 누락되었습니다", null));
+	}
+}

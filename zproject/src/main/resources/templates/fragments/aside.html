@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<title>Insert title here</title>
+</head>
+<body>
+	<div id="aside">
+		<div>
+			<!--  로그인 여부 확인 -->
+			<span sec:authorize="isAuthenticated()">
+				<span sec:authentication="name"></span>
+			</span>
+			<span sec:authorize="isAnonymous()">비인증</span>
+		</div>
+		<div>광고</div>
+		<div>광고</div>
+	</div>
+</body>
+
+</body>
+</html>

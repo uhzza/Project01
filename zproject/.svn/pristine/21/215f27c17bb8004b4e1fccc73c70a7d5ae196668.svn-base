@@ -1,0 +1,63 @@
+@charset "UTF-8";
+* {
+	margin: 0;
+	padding: 0;	
+}
+
+ul, li {
+	list-style: none;
+}
+
+@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+header, nav, aside, footer, section {
+	font-family : "Nanum Gothic", sans-serif;
+}
+
+/* 전체적인 레이아웃 설정 */
+#page {
+	width: 1005px;
+	margin: 0 auto;
+}
+
+#header  {
+	border : 1px solid #d89a1d;
+	letter-spacing: 0.75em
+}
+#header p {
+	font-size: 1.75em;
+	font-weight: bold;
+	text-align: center;
+}
+
+#aside {
+	width: 200px;
+	height: 303px;
+	float: left;
+	background-color: #ccc;
+}
+
+#aside div {
+	width: 150px;
+	background-color: #eee;
+	border: 1px solid #ddd;
+	height: 100px;
+	line-height: 100px;
+	text-align: center;
+	margin: 0 auto;
+}
+
+section {
+	width: 800px;
+	padding: 20px;
+	float: right;
+	border: 1px solid orange;
+	min-height: 600px;
+}
+
+#main {
+	overflow: hidden;
+}
+
+.custom {
+    width: 100px;
+}

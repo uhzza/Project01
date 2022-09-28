@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+<title>Insert title here</title>
+<script>
+	// 로그인한 아이디. 비로그인이면 null;
+	const username = "spring";
+</script>
+<script type="module">
+	// 모듈 스크립트는 html문서가 로딩된 다음 실행된다
+
+	import {board} from "./board.js";
+	
+	// board 출력
+	$("#bno").text(board.bno);
+	$("#title").val(board.title);
+	$("#content").val(board.content);
+	$("#writer").text(board.writer);
+
+	// 비로그인, 글쓴이, 글쓴이 아님
+	if(username==null) {
+		$('#good_or_bad').css('display','none');
+		$('#update_or_delete').css('display','none');
+		$("#title").attr("disabled", true);
+		$("#content").attr("disabled", true);
+	} else {
+		if(username==board.writer) {
+			$('#good_or_bad').css('display','none');
+			$('#update_or_delete').css('display','block');
+			$("#title").attr("disabled", false);
+			$("#content").attr("disabled", false);
+		} else {
+			$('#good_or_bad').css('display','block');
+			$('#update_or_delete').css('display','none');
+			$("#title").attr("disabled", true);
+			$("#content").attr("disabled", true);
+		}
+	}
+
+	const $comments = $('#comments');
+	// 만약 #comments 내부의 댓글을 지우고 다시 출력하려면 empty
+	$comments.empty();
+	const tpl = $('#comment_template').html();
+	for(const c of board.comments) {
+		let html = tpl.replace('{cno}',c.cno).replace('{content}',c.content)
+				.replace('{writer}', c.writer);
+		// 로그인한 사용자가 댓글 작성자라면 삭제 버튼 보이게
+		if(username==c.writer)
+			html = html.replace('{state}', 'visible');
+		else if(username!=c.writer)
+			html = html.replace('{state}', 'hidden');
+		$comments.append(html);  
+	}
+	
+</script>
+</head>
+<body>
+	<ul>
+		<li id="good_or_bad"><button>좋아요</button><button>싫어요</button></li>
+		<li>글번호:<span id="bno"></span> </li>
+		<li>제목:<input type="text" id="title"></li>
+		<li>내용:<input type="text" id="content"></li>
+		<li>글쓴이:<span id="writer"></span></li>
+		<li id="update_or_delete"><button>변경</button><button>삭제</button></li>
+	</ul>
+	<div id="comments">
+	</div>
+</body>
+</html>
+
+<!-- 
+	visibility: hidden과 display:none의 차이
+-->
+<template id="comment_template">
+	<div style="overflow:hidden;">
+		<div style="float:left;">{cno}</div>
+		<div style="float:left;">{content}</div>
+		<div style="float:left;">{writer}</div>
+		<div style="float:right; visibility: {state};" >삭제</div>
+	</div>
+</template>

@@ -1,0 +1,69 @@
+package com.example.demo;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.boot.test.context.*;
+import org.springframework.transaction.annotation.*;
+
+import com.example.demo.dto.*;
+import com.example.demo.entity.*;
+import com.example.demo.exception.*;
+import com.example.demo.service.*;
+
+@SpringBootTest
+public class BoardServiceTest {
+	@Autowired
+	private BoardService service;
+	
+	@Transactional
+	@Test
+	public void writeTest() {
+		BoardDto.Write dto = BoardDto.Write.builder().title("aaa").content("bbb").build();
+		Board board = service.write(dto, "spring");
+		assertNotNull(board.getBno());
+	}
+	
+	@Transactional
+	@Test
+	public void readTest() {
+		Assertions.assertThrows(BoardNotFoundException.class, ()->service.read(1000, "spring"));
+		assertEquals(0, service.read(31, null).getReadCnt());
+		assertEquals(0, service.read(32, "spring").getReadCnt());
+		assertEquals(1, service.read(33, "summer").getReadCnt());
+	}
+	
+	@Test
+	public void listTest() {
+		assertEquals(10, service.list(1, "spring").getPagesize());
+	}
+	
+	@Transactional
+	@Test
+	public void updateTest() {
+		// 없는 글
+		BoardDto.Update board1 = BoardDto.Update.builder().bno(1).title("hello").content("aaaa").build();
+		// 있는 글
+		BoardDto.Update board2 = BoardDto.Update.builder().bno(2).title("hello").content("aaaa").build();
+		Assertions.assertThrows(BoardNotFoundException.class, ()->service.update(board1, "spring"));
+		Assertions.assertThrows(JobFailException.class, ()->service.update(board2, "winter"));
+		assertEquals(1, service.update(board2, "spring"));
+	}
+
+	@Transactional
+	@Test
+	public void deleteTest() {
+		// 없는 글 삭제
+		Assertions.assertThrows(BoardNotFoundException.class, ()->service.delete(1, "spring"));
+		// 글쓴이가 아님
+		Assertions.assertThrows(JobFailException.class, ()->service.delete(2, "winter"));
+		assertEquals(1, service.delete(2, "spring"));
+	}
+}
+
+
+
+
+
+

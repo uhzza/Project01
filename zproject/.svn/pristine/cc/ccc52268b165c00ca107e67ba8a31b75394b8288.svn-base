@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<title>Insert title here</title>
+</head>
+<body>
+<div id="nav" class="navbar navbar-expand-sm bg-dark navbar-dark">
+	<div class="container-fluid">
+		<div>
+			<a class="navbar-brand" href="/">HOME</a>
+		</div>
+		<!-- 비로그인이면 아래 ul을 출력하는 EL -->
+		<ul sec:authorize="isAnonymous()" class="navbar-nav" id="menu_anonymous">
+			<li><a class="nav-link" href="/member/join">회원가입</a></li>
+			<li><a class="nav-link" href="/login">로그인</a></li>
+			<li><a class="nav-link" href="/board/list">게시판</a></li>
+    	</ul>
+    	<!-- 로그인을 했다면 아래 ul을 출력하는 EL -->
+    	<ul sec:authorize="isAuthenticated()" class="navbar-nav" id="menu_authenticated">
+			<li><a class="nav-link" href="/board/list">게시판으로</a></li>
+			<li><a class="nav-link" href="/board/write">글쓰기</a></li>
+			<li><a class="nav-link" href="#" id="logout">로그아웃</a></li>
+    	</ul>
+	</div>
+	<script th:inline="javascript">
+		$("#menu_authenticated").on("click", "#logout", (e)=> {
+			e.preventDefault();
+			
+			const choice = confirm('로그아웃하시겠습니까?');
+			if(choice==false)
+				return;
+			$.ajax({
+				url:"http://localhost:8087/logout",
+				method: "post",
+			}).done(()=> location.href = '/');
+			
+		});	
+	</script>
+</div>
+</body>
+</html>

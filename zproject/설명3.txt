@@ -1,0 +1,20 @@
+※ 스프링의 경우
+- 입력 문자열을 적절한 객체로 변환 : PropertyEditor
+- MVC 방식에서 출력 : 스프링이 담당(왜? 무조건 html이니까)
+- REST 방식에서 출력 : MessageConverter가 필요
+	produces로 출력 형식을 지정하면 스프링이 형식에 따라 MessageConverter를 찾는다
+	없으면 no converter 오류
+	
+※ MyBatis를 사용하는 경우
+- 입출력 변환 객체 : TypeHandler
+- enum을 문자열로 입출력->EnumTypeHandler, enum을 숫자로 입출력->EnumOrdinalTypeHandler
+- 마이바티스의 enum 기본 핸들러 : 기본값이 EnumTypeHandler
+  그래서 숫자로 바꿔보자란 생각을 했다
+  	이 작업이 MVC면 mybatis-confing.xml의 <typeHandlers> 태그에 등록하면 동작
+  부트에서는??? 등록 방법을 모르겠다(못 찾았다)
+- 무슨 말하는 거냐?
+  마이바티스는 MVC에서 많이 사용 -> 검색하면 죄다 xml 설정들...심지어 공식사이트에도 xml 설정
+  JPA의 경우 부트에서 많이 사용 -> xml 설정이 필요하면....
+
+※ JPA를 사용하는 경우
+- 추가 도구 jpql, queryDsl를 제공
